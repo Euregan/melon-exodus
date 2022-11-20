@@ -69,12 +69,23 @@ export const getServerSideProps: GetServerSideProps<Props> = async (
   context
 ) => {
   const { token } = context.req.cookies
-  const following = token ? await twitter.following(token) : null
+  try {
+    const following = token ? await twitter.following(token) : null
 
-  return {
-    props: {
-      initialToken: token,
-      initialFollowing: following,
-    },
+    return {
+      props: {
+        initialToken: token || null,
+        initialFollowing: following,
+      },
+    }
+  } catch (error) {
+    context.res.setHeader('Set-Cookie', 'token=;Max-Age=-1')
+
+    return {
+      props: {
+        initialToken: null,
+        initialFollowing: null,
+      },
+    }
   }
 }

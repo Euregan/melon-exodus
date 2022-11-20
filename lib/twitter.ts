@@ -6,7 +6,7 @@ export const following = async (token: string) => {
   const users: Array<User> = []
   const params = {
     max_results: 1000,
-    'user.fields': 'created_at',
+    'user.fields': 'description,id,name,url,username',
   }
 
   const { data: user } = await (
@@ -17,7 +17,7 @@ export const following = async (token: string) => {
     })
   ).json()
 
-  const url = `https://api.twitter.com/2/users/${user.id}/following?user.fields=description,id,name,url,username`
+  const url = `https://api.twitter.com/2/users/${user.id}/following`
 
   let hasNextPage = true
   let nextToken = null
@@ -71,13 +71,14 @@ const getPage = async (
     )
 
     if (resp.status !== 200) {
-      console.error(`${resp.status} ${resp.statusText}:\n${resp.body}`)
-      throw `${resp.status} ${resp.statusText}:\n${resp.body}`
+      console.error(resp.status, resp.statusText, await resp.json())
+      throw resp.body
     }
 
     return resp.json()
-  } catch (err) {
-    throw new Error(`Request failed: ${err}`)
+  } catch (error) {
+    console.error('Request failed:', error)
+    throw error
   }
 }
 
